@@ -1,0 +1,22 @@
+name: CD
+
+on:
+  push:
+    branches: [ develop ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy to node_server
+      uses: appleboy/ssh-action@master
+      with:
+        host: 3.124.113.60
+        username: deployer
+        key: ${{ secrets.SSH_KEY }}
+        port: 22
+        script: |
+          cd zbtech-test/
+          sudo git pull origin develop
+          docker stop frontend ; docker rm frontend
+          docker run --name frontend -d -v /home/deployer/zbtech-test/:/usr/share/nginx/html/ -p 8083:80 nginx:latest
